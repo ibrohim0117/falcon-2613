@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block main %}
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row flex-between-center">
+      <div class="col-sm-auto mb-2 mb-sm-0">
+        <h6 class="mb-0">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} Products</h6>
+      </div>
+      <div class="col-sm-auto">
+        <div class="row gx-2 align-items-center">
+          <div class="col-auto">
+            <form class="row gx-2">
+              <div class="col-auto"><small>Sort by:</small></div>
+              <div class="col-auto">
+                <select class="form-select form-select-sm" name="sort">
+                  <option selected="">Best Match</option>
+                  <option value="newest">Newest</option>
+                  <option value="price">Price</option>
+                </select>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row">
+      {% for i in page_obj %}
+      <div class="mb-4 col-md-6 col-lg-4">
+        <div class="border rounded-1 h-100 d-flex flex-column justify-content-between pb-3">
+          <div class="overflow-hidden">
+            <div class="position-relative rounded-top overflow-hidden">
+                <a class="d-block" href="{% url 'product' i.slug %}">
+                    <img class="img-fluid rounded-top" src="{{ i.products.first.image.url }}" alt="{{ i.name }}" />
+                </a>
+              {% if i.is_new %}
+                <span class="badge rounded-pill bg-success position-absolute mt-2 me-2 z-index-2 top-0 end-0">New</span>
+              {% endif %}
+            </div>
+            <div class="p-3">
+              <h5 class="fs-0"><a class="text-dark" href="{% url 'product' i.slug %}">{{ i.name.capitalize }}</a></h5>
+              <p class="fs--1 mb-3"><a class="text-500" href="#!">{{ i.category }}</a></p>
+              <h5 class="fs-md-2 text-warning mb-0 d-flex align-items-center mb-3">
+                {{ i.sale_seller|intcomma }} UZS
+                {% if i.price %}
+                <del class="ms-2 fs--1 text-500">{{ i.price|intcomma }} UZS</del>
+                {% endif %}
+              </h5>
+              <p class="fs--1 mb-1">Shipping: <strong>$50</strong></p>
+              <p class="fs--1 mb-1">Stock: <strong class="text-success">Available</strong></p>
+            </div>
+          </div>
+          <div class="d-flex flex-between-center px-3">
+            <div>
+                <span class="fa fa-star text-warning"></span>
+                <span class="fa fa-star text-warning"></span>
+                <span class="fa fa-star text-warning"></span>
+                <span class="fa fa-star text-warning"></span>
+                <span class="fa fa-star text-300"></span>
+                <span class="ms-1">(8)</span>
+            </div>
+            <div>
+                <form action="{% url 'shopping_cart_create' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="product" value="{{ i.id }}">
+                    <button class="btn btn-sm btn-falcon-default" type="submit" data-bs-toggle="tooltip" title="Add to Cart">
+                        <span class="fas fa-cart-plus"></span>
+                    </button>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card-footer bg-light d-flex justify-content-center">
+    <nav aria-label="Page navigation">
+      <ul class="pagination mb-0">
+        
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="btn btn-falcon-default btn-sm me-2" href="?page={{ page_obj.previous_page_number }}" data-bs-toggle="tooltip" title="Prev">
+            <span class="fas fa-chevron-left"></span>
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <button class="btn btn-falcon-default btn-sm me-2" type="button" disabled><span class="fas fa-chevron-left"></span></button>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <li class="page-item"><a class="btn btn-sm btn-falcon-default text-primary me-2 active" href="#!">{{ num }}</a></li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item"><a class="btn btn-sm btn-falcon-default me-2" href="?page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="btn btn-falcon-default btn-sm" href="?page={{ page_obj.next_page_number }}" data-bs-toggle="tooltip" title="Next">
+            <span class="fas fa-chevron-right"></span>
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <button class="btn btn-falcon-default btn-sm" type="button" disabled><span class="fas fa-chevron-right"></span></button>
+        </li>
+        {% endif %}
+
+      </ul>
+    </nav>
+  </div>
+  </div>
+{% endblock main %}

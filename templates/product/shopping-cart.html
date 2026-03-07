@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block main %}
+<div class="card">
+  <div class="card-header">
+    <div class="row justify-content-between">
+      <div class="col-md-auto">
+        <h5 class="mb-3 mb-md-0">Shopping Cart ({{ request.user.my_carts.count }} Items)</h5>
+      </div>
+      <div class="col-md-auto">
+        <a class="btn btn-sm btn-outline-secondary border-300 me-2" href="{% url 'product_list' %}"> 
+          <span class="fas fa-chevron-left me-1"></span>Continue Shopping
+        </a>
+        <a class="btn btn-sm btn-primary" href="#">Checkout</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-0">
+    <div class="row gx-card mx-0 bg-200 text-900 fs--1 fw-semi-bold">
+      <div class="col-9 col-md-8 py-2">Name</div>
+      <div class="col-3 col-md-4">
+        <div class="row">
+          <div class="col-md-8 py-2 d-none d-md-block text-center">Quantity</div>
+          <div class="col-12 col-md-4 text-end py-2">Price</div>
+        </div>
+      </div>
+    </div>
+
+    {% for i in request.user.my_carts.all %}
+    <div class="row gx-card mx-0 align-items-center border-bottom border-200 cart-item-row">
+      <div class="col-8 py-3">
+        <div class="d-flex align-items-center">
+          <a href="#">
+            <img class="img-fluid rounded-1 me-3 d-none d-md-block" 
+                 src="{{ i.product.products.first.image.url }}" alt="" width="60" />
+          </a>
+          <div class="flex-1">
+            <h5 class="fs-0"><a class="text-900" href="#">{{ i.product.name }}</a></h5>
+            <div class="fs--2 fs-md--1">
+              <a class="text-danger" href="{% url 'shopping_cart_remove' i.id %}">Remove</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-4 py-3">
+        <div class="row align-items-center">
+          <div class="col-md-8 d-flex justify-content-end justify-content-md-center order-1 order-md-0">
+            <div>
+              <div class="input-group input-group-sm flex-nowrap">
+                <button class="btn btn-sm btn-outline-secondary border-300 px-2 btn-minus" type="button">-</button>
+                
+                <input class="form-control text-center px-2 input-spin-none cart-quantity" 
+                       type="number" min="1" value="1" readonly style="width: 50px" />
+                
+                <button class="btn btn-sm btn-outline-secondary border-300 px-2 btn-plus" type="button">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 text-end ps-0 order-0 order-md-1 mb-2 mb-md-0 text-600">
+            <span class="item-total-price" data-unit-price="{{ i.product.price }}">{{ i.product.price|intcomma }}  UZS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="card-footer bg-light d-flex justify-content-end align-items-center">
+    <div class="me-auto">
+      <h5 class="mb-0">Total: UZS <span id="grand-total">0.00</span></h5>
+    </div>
+    <form class="me-3">
+      <div class="input-group input-group-sm">
+        <input class="form-control" type="text" placeholder="Promocode" />
+        <button class="btn btn-outline-secondary border-300 btn-sm" type="submit">Apply</button>
+      </div>
+    </form>
+    <a class="btn btn-sm btn-primary" href="{% url 'order_create' %}">Checkout</a>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Umumiy savatcha narxini hisoblash funksiyasi
+    function updateGrandTotal() {
+        let total = 0;
+        document.querySelectorAll('.item-total-price').forEach(span => {
+            total += parseFloat(span.innerText);
+        });
+        document.getElementById('grand-total').innerText = total.toFixed(2);
+    }
+
+    // Har bir qator uchun hodisalarni bog'lash
+    document.querySelectorAll('.cart-item-row').forEach(row => {
+        const plusBtn = row.querySelector('.btn-plus');
+        const minusBtn = row.querySelector('.btn-minus');
+        const quantityInput = row.querySelector('.cart-quantity');
+        const priceSpan = row.querySelector('.item-total-price');
+        const unitPrice = parseFloat(priceSpan.getAttribute('data-unit-price'));
+
+        // Plus bosilganda
+        plusBtn.addEventListener('click', () => {
+            let currentQty = parseInt(quantityInput.value);
+            quantityInput.value = currentQty + 1;
+            priceSpan.innerText = ((currentQty + 1) * unitPrice).toFixed(2);
+            updateGrandTotal();
+        });
+
+        // Minus bosilganda
+        minusBtn.addEventListener('click', () => {
+            let currentQty = parseInt(quantityInput.value);
+            if (currentQty > 1) {
+                quantityInput.value = currentQty - 1;
+                priceSpan.innerText = ((currentQty - 1) * unitPrice).toFixed(2);
+                updateGrandTotal();
+            }
+        });
+    });
+
+    // Sahifa yuklanganda umumiy summani birinchi marta hisoblab qo'yish
+    updateGrandTotal();
+});
+</script>
+
+{% endblock main %}

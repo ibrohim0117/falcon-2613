@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-xl-9">
+      <form method="post" action="{% url 'order_update' order.id %}"> 
+        {% csrf_token %}
+        
+        <div class="card mb-3">
+          <div class="card-header bg-light">
+            <h5 class="mb-0 text-primary"><span class="fas fa-shipping-fast me-2"></span>Yetkazib berish ma'lumotlari</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semi-bold" for="phone_number">Telefon raqam *</label>
+                <input class="form-control" id="phone_number" name="phone_number" type="tel" placeholder="+998 90 123 45 67" required />
+              </div>
+              
+              <div class="col-md-6">
+                <label class="form-label fw-semi-bold" for="shipping_address">Yetkazib berish manzili *</label>
+                <input class="form-control" id="shipping_address" name="address" type="text" placeholder="Shahar, tuman, ko'cha, uy raqami" required />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semi-bold" for="order_notes">Buyurtma uchun izoh (ixtiyoriy)</label>
+                <textarea class="form-control" id="order_notes" name="notes" rows="2" placeholder="Masalan: Dom kodi, mo'ljal va hokazo..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header bg-light">
+            <h5 class="mb-0 text-primary"><span class="fas fa-credit-card me-2"></span>To'lov usulini tanlang</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              
+              <div class="col-md-6 col-lg-4">
+                <div class="form-check custom-radio radio-select">
+                  <input class="form-check-input" id="cash" type="radio" name="payment_method" value="cash" checked />
+                  <label class="form-check-label d-block cursor-pointer" for="cash">
+                    <span class="fw-bold d-block">Naqd pul</span>
+                    <span class="fs--1 text-600">Qabul qilganda to'lash</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-lg-4">
+                <div class="form-check custom-radio radio-select">
+                  <input class="form-check-input" id="card" type="radio" name="payment_method" value="card" />
+                  <label class="form-check-label d-block cursor-pointer" for="card">
+                    <span class="fw-bold d-block">Plastik karta</span>
+                    <span class="fs--1 text-600">Kuryer terminali orqali</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-lg-4">
+                <div class="form-check custom-radio radio-select">
+                  <input class="form-check-input" id="click" type="radio" name="payment_method" value="click" />
+                  <label class="form-check-label d-block cursor-pointer" for="click">
+                    <span class="fw-bold d-block">Click</span>
+                    <span class="fs--1 text-600">Onlayn to'lov tizimi</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-lg-4">
+                <div class="form-check custom-radio radio-select">
+                  <input class="form-check-input" id="payme" type="radio" name="payment_method" value="payme" />
+                  <label class="form-check-label d-block cursor-pointer" for="payme">
+                    <span class="fw-bold d-block">Payme</span>
+                    <span class="fs--1 text-600">Onlayn to'lov tizimi</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-lg-4">
+                <div class="form-check custom-radio radio-select">
+                  <input class="form-check-input" id="uzum" type="radio" name="payment_method" value="uzum" />
+                  <label class="form-check-label d-block cursor-pointer" for="uzum">
+                    <span class="fw-bold d-block">Uzum Bank</span>
+                    <span class="fs--1 text-600">Ilova orqali to'lov</span>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-top border-3 border-success">
+          <div class="card-body p-4">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h5 class="mb-1">Buyurtmani yakunlash</h5>
+                <p class="fs--1 mb-0 text-700">Tugmani bosish orqali siz bizning xizmat ko'rsatish shartlarimizga rozilik bildirasiz.</p>
+              </div>
+              <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <button class="btn btn-success btn-lg px-5 shadow-sm" type="submit">
+                  <span class="fas fa-check-circle me-2"></span>Tasdiqlash va To'lash
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      </div>
+  </div>
+</div>
+{% endblock main %}

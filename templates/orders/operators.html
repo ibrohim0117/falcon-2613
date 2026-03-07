@@ -1,0 +1,210 @@
+{% load humanize %}
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyurtmalar Boshqaruvi | Operator</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7fa;
+            color: #334155;
+            padding: 40px 20px;
+        }
+
+        .order-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-header-custom {
+            padding: 20px 30px;
+            background: #fff;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header-custom h5 {
+            margin: 0;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .table thead th {
+            background-color: #f8fafc;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            padding: 15px 25px;
+            color: #64748b;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table tbody td {
+            padding: 16px 25px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.88rem;
+        }
+
+        /* Dinamik Status Badgelar */
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Status ranglari mantiqan */
+        .status-pending { background: #fff7ed; color: #ea580c; }    /* Kutilmoqda */
+        .status-confirmed { background: #ecfdf5; color: #059669; }  /* Tasdiqlandi */
+        .status-processing { background: #eff6ff; color: #2563eb; } /* Tayyorlanmoqda */
+        .status-shipped { background: #f5f3ff; color: #7c3aed; }    /* Yo'lga chiqdi */
+        .status-delivered { background: #f0fdf4; color: #16a34a; }  /* Yetkazildi */
+        .status-cancelled { background: #fef2f2; color: #dc2626; }  /* Bekor qilindi */
+        .status-returned { background: #f1f5f9; color: #475569; }   /* Qaytarildi */
+
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover { background: #f1f5f9; color: #1e293b; }
+
+        .dropdown-menu {
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border: 1px solid #f1f5f9;
+            padding: 6px;
+        }
+
+        .dropdown-item {
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="order-container">
+    <div class="card-header-custom">
+        <h5><i class="fas fa-clipboard-list me-2 text-primary"></i>Buyurtmalar</h5>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-filter me-1"></i> Filter</button>
+            <a href="{% url 'logout' %}" class="btn btn-light btn-sm text-danger fw-bold border">
+                <i class="fas fa-sign-out-alt me-1"></i> Chiqish
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Mijoz</th>
+                    <th>Sana</th>
+                    <th>Manzil</th>
+                    <th class="text-center">Holat</th>
+                    <th class="text-end">Summa</th>
+                    <th class="text-end">Amal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in order_list %}
+                <tr>
+                    <td class="fw-bold">#{{ i.id }}</td>
+                    <td>
+                        <div class="fw-semibold">{{ i.user.full_name }}</div>
+                        <div class="text-muted small">{{ i.phone }}</div>
+                    </td>
+                    <td class="text-muted small">
+                        {{ i.created_at|date:"d.m.Y" }}<br>{{ i.created_at|date:"H:i" }}
+                    </td>
+                    <td class="text-truncate" style="max-width: 180px;">{{ i.address }}</td>
+                    <td class="text-center">
+                        <span class="status-badge 
+                            {% if i.is_status == 'pending' %}status-pending
+                            {% elif i.is_status == 'confirmed' %}status-confirmed
+                            {% elif i.is_status == 'processing' %}status-processing
+                            {% elif i.is_status == 'shipped' %}status-shipped
+                            {% elif i.is_status == 'delivered' %}status-delivered
+                            {% elif i.is_status == 'cancelled' %}status-cancelled
+                            {% elif i.is_status == 'returned' %}status-returned
+                            {% endif %}">
+                            <i class="fas fa-circle fs--2 me-1" style="font-size: 6px;"></i> 
+                            {{ i.get_is_status_display }}
+                        </span>
+                    </td>
+                    <td class="text-end fw-bold">
+                        {{ i.total_order_price|intcomma }} <small class="text-muted">UZS</small>
+                    </td>
+                    <td class="text-end">
+                        <div class="dropdown">
+                            <button class="btn-action" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'order_update_w_operator' i.id %}?status=pending"><i class="fas fa-hourglass-start me-2 text-warning"></i> Kutilmoqda</a></li>
+                                <li><a class="dropdown-item" href="{% url 'order_update_w_operator' i.id %}?status=confirmed"><i class="fas fa-check-circle me-2 text-success"></i> Tasdiqlandi</a></li>
+                                <li><a class="dropdown-item" href="{% url 'order_update_w_operator' i.id %}?status=processing"><i class="fas fa-box me-2 text-primary"></i> Tayyorlanmoqda</a></li>
+                                <li><a class="dropdown-item" href="{% url 'order_update_w_operator' i.id %}?status=shipped"><i class="fas fa-truck me-2 text-info"></i> Yo‘lga chiqdi</a></li>
+                                <li><a class="dropdown-item" href="{% url 'order_update_w_operator' i.id %}?status=delivered"><i class="fas fa-check-double me-2 text-success"></i> Yetkazildi</a></li>
+                                <li><a class="dropdown-item" href="{% url 'order_update_w_operator' i.id %}?status=cancelled"><i class="fas fa-times-circle me-2 text-danger"></i> Bekor qilindi</a></li>
+                                <li><a class="dropdown-item" href="{% url 'order_update_w_operator' i.id %}?status=returned"><i class="fas fa-undo me-2 text-secondary"></i> Qaytarildi</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i> O'chirish</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">Buyurtmalar mavjud emas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-container">
+        <div class="small text-muted">Jami: <b>{{ order_list|length }}</b> ta</div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
