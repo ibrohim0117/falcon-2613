@@ -9,7 +9,8 @@ from root import settings
 urlpatterns = [
     path('', lambda request: redirect('apps/')),
     path('admin/', admin.site.urls),
-    path('apps/', include('apps.urls'))
+    path('apps/', include('apps.urls')),
+    path('accounts/', include('allauth.urls')),
 ]
 
 if settings.DEBUG:
