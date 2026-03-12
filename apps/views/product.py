@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
 from apps.models.product import Product, ShoppingCart
+from apps.models.user import Users
 
 
 
@@ -21,6 +22,13 @@ class ProductListView(ListView):
         if q_name:
             data = Product.objects.filter(name__contains=q_name).all()
         return data
+    
+    def get(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated and request.user.user_type == Users.UserTypeChoice.OPERATOR:
+            return redirect("operator_list")
+
+        return super().get(request, *args, **kwargs)
     
 
 class ProductDetailView(DetailView):

@@ -19,6 +19,15 @@ class OperatorView(LoginRequiredMixin, ListView):
     login_url = 'login'
     # ordering = ['-id']
 
+    def get_queryset(self):
+        filter_status = self.request.GET.get('status')
+
+        if filter_status:
+            return Order.objects.filter(is_status=filter_status).all()
+
+        
+        return super().get_queryset()
+
 
 class OrderDetailView(LoginRequiredMixin, DetailView):
     model = Order
@@ -68,7 +77,7 @@ def order_update(request, pk):
             db_order.address = address
             db_order.description = description
             db_order.payment_method = payment_method
-            db_order.is_status = "confirmed"
+            db_order.is_status = Order.OrderStatusChoice.CONFIRMED
             db_order.save()
 
     return redirect("order_list")

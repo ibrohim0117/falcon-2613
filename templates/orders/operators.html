@@ -72,7 +72,6 @@
             gap: 5px;
         }
 
-        /* Status ranglari mantiqan */
         .status-pending { background: #fff7ed; color: #ea580c; }    /* Kutilmoqda */
         .status-confirmed { background: #ecfdf5; color: #059669; }  /* Tasdiqlandi */
         .status-processing { background: #eff6ff; color: #2563eb; } /* Tayyorlanmoqda */
@@ -108,6 +107,18 @@
             padding: 8px 12px;
             font-size: 0.85rem;
         }
+
+        .pagination-container {
+            padding: 20px 30px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Filter dot indicators */
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
     </style>
 </head>
 <body>
@@ -116,8 +127,29 @@
     <div class="card-header-custom">
         <h5><i class="fas fa-clipboard-list me-2 text-primary"></i>Buyurtmalar</h5>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-filter me-1"></i> Filter</button>
-            <a href="{% url 'logout' %}" class="btn btn-light btn-sm text-danger fw-bold border">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-filter me-1"></i> 
+                    {% if request.GET.status %}
+                        Holat: {{ request.GET.status|title }}
+                    {% else %}
+                        Barcha buyurtmalar
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><a class="dropdown-item {% if not request.GET.status %}active{% endif %}" href="?">Barchasi</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="?status=pending"><span class="dot" style="background-color: #ea580c;"></span> Kutilmoqda</a></li>
+                    <li><a class="dropdown-item" href="?status=confirmed"><span class="dot" style="background-color: #059669;"></span> Tasdiqlandi</a></li>
+                    <li><a class="dropdown-item" href="?status=processing"><span class="dot" style="background-color: #2563eb;"></span> Tayyorlanmoqda</a></li>
+                    <li><a class="dropdown-item" href="?status=shipped"><span class="dot" style="background-color: #7c3aed;"></span> Yo‘lga chiqdi</a></li>
+                    <li><a class="dropdown-item" href="?status=delivered"><span class="dot" style="background-color: #16a34a;"></span> Yetkazildi</a></li>
+                    <li><a class="dropdown-item" href="?status=cancelled"><span class="dot" style="background-color: #dc2626;"></span> Bekor qilindi</a></li>
+                    <li><a class="dropdown-item" href="?status=returned"><span class="dot" style="background-color: #475569;"></span> Qaytarildi</a></li>
+                </ul>
+            </div>
+
+            <a href="{% url 'logout' %}" class="btn btn-light btn-sm text-danger fw-bold border shadow-sm">
                 <i class="fas fa-sign-out-alt me-1"></i> Chiqish
             </a>
         </div>
@@ -186,7 +218,10 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center py-5 text-muted">Buyurtmalar mavjud emas.</td>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="fas fa-box-open fa-3x mb-3 opacity-25"></i><br>
+                        Hozircha buyurtmalar mavjud emas.
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -194,14 +229,26 @@
     </div>
 
     <div class="pagination-container">
-        <div class="small text-muted">Jami: <b>{{ order_list|length }}</b> ta</div>
+        <div class="small text-muted">Jami: <b>{{ order_list|length }}</b> ta buyurtma</div>
+        {% if is_paginated %}
         <nav>
             <ul class="pagination pagination-sm mb-0">
-                <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"><i class="fas fa-chevron-left"></i></a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li>
+                {% endif %}
+
+                <li class="page-item active"><a class="page-link" href="#">{{ page_obj.number }}</a></li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"><i class="fas fa-chevron-right"></i></a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>
+                {% endif %}
             </ul>
         </nav>
+        {% endif %}
     </div>
 </div>
 
